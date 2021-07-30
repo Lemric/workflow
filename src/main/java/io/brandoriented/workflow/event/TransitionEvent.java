@@ -1,0 +1,24 @@
+package io.brandoriented.workflow.event;
+
+import io.brandoriented.workflow.Marking;
+import io.brandoriented.workflow.Transition;
+import io.brandoriented.workflow.WorkflowInterface;
+
+import java.util.Map;
+
+public class TransitionEvent extends Event {
+
+    private Map<String, Boolean> context;
+
+    public TransitionEvent(Object subject, Marking marking, Transition transition, WorkflowInterface workflow, Map<String, Boolean> context) {
+        super(subject, marking, transition, workflow, context);
+    }
+
+    public TransitionEvent(Object subject, Marking marking, Transition transition, WorkflowInterface workflow) {
+        super(subject, marking, transition, workflow);
+    }
+
+    public void setContext(Map<String, Boolean> context) {
+        this.context = context;
+    }
+}

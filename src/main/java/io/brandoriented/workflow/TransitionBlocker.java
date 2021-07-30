@@ -18,11 +18,29 @@ public class TransitionBlocker {
         this.parameters = parameters;
     }
 
+    public TransitionBlocker(String message, String code) {
+        this.message = message;
+        this.code = code;
+        this.parameters = null;
+    }
+
     public static TransitionBlocker createBlockedByMarking(Marking marking) {
         return new TransitionBlocker("The marking does not enable the transition.",
                 BLOCKED_BY_MARKING, new HashMap<String, Marking>() {{
             put("marking", marking);
         }});
+    }
+
+    public static TransitionBlocker createUnknown(String message) {
+        return createUnknown(message, 2);
+    }
+
+    public static TransitionBlocker createUnknown(String message, int backtraceFrame) {
+        if (null != message) {
+            return new TransitionBlocker(message, UNKNOWN);
+        }
+
+        return new TransitionBlocker("The transition has been blocked by a guard.", UNKNOWN);
     }
 
     public String getMessage() {
