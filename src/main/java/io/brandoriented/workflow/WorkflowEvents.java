@@ -1,5 +1,8 @@
 package io.brandoriented.workflow;
 
+import io.brandoriented.workflow.event.*;
+
+import java.util.HashMap;
 import java.util.Map;
 
 public class WorkflowEvents {
@@ -11,5 +14,14 @@ public class WorkflowEvents {
     public static String COMPLETED = "workflow.completed";
     public static String ANNOUNCE = "workflow.announce";
 
-    public static Map<String, String> ALIASES;
+    public static Map<String, String> ALIASES = new HashMap<String, String>() {{
+        put(String.valueOf(GuardEvent.class), GUARD);
+        put(String.valueOf(LeaveEvent.class), LEAVE);
+        put(String.valueOf(TransitionEvent.class), TRANSITION);
+        put(String.valueOf(EnterEvent.class), ENTER);
+        put(String.valueOf(EnteredEvent.class), ENTERED);
+        put(String.valueOf(CompletedEvent.class), COMPLETED);
+        put(String.valueOf(AnnounceEvent.class), ANNOUNCE);
+    }};
+
 }

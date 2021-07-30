@@ -6,7 +6,10 @@ import java.util.Map;
 public class Marking {
     private Map<String, Integer> places;
 
-    public Marking(HashMap<String, String> representation) {
+    public Marking() {
+    }
+
+    public Marking(HashMap<String, Integer> representation) {
         representation.forEach((place, nbToken) -> this.mark(place));
     }
 
