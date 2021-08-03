@@ -8,9 +8,7 @@ import java.util.Map;
 public interface MarkingStoreInterface {
     Marking getMarking(Object subject) throws LogicException;
 
-    Marking setMarking(Object subject, Marking marking, Map<String, Boolean> context);
+    void setMarking(Object subject, Marking marking, Map<String, Boolean> context) throws LogicException;
 
-    Marking setMarking(Object subject, Marking marking, String[] context);
-
-    Marking setMarking(Object subject, Marking marking);
+    void setMarking(Object subject, Marking marking) throws LogicException;
 }

@@ -2,24 +2,37 @@ package io.brandoriented.workflow;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Definition {
-    private final ArrayList<PlaceInterface> initialPlaces;
-    private final MetadataStoreInterface metadataStore;
-    private Map<String, PlaceInterface> places;
-    private ArrayList<Transition> transitions;
+    private ArrayList<PlaceInterface> initialPlaces = null;
+    private MetadataStoreInterface metadataStore = null;
+    private Map<String, PlaceInterface> places = null;
+    private ArrayList<Transition> transitions = null;
 
     public Definition(Map<String, PlaceInterface> places,
                       ArrayList<Transition> transitions,
                       ArrayList<PlaceInterface> initialPlaces,
                       MetadataStoreInterface metadataStore) {
 
+        this.places = new HashMap<String, PlaceInterface>();
+        this.initialPlaces = new ArrayList<PlaceInterface>();
+        this.transitions = new ArrayList<Transition>();
+
         places.forEach(this::addPlace);
         transitions.forEach(this::addTransition);
 
         this.initialPlaces = initialPlaces;
         this.metadataStore = metadataStore;
+    }
+
+    public Definition(Map<String, PlaceInterface> places) {
+        this.places = new HashMap<String, PlaceInterface>();
+        this.initialPlaces = new ArrayList<PlaceInterface>();
+        this.transitions = new ArrayList<Transition>();
+
+        places.forEach(this::addPlace);
     }
 
     public void addPlace(String planeName, PlaceInterface place) {

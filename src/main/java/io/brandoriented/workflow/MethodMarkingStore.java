@@ -13,20 +13,6 @@ final public class MethodMarkingStore implements MarkingStoreInterface {
     private boolean singleState = false;
     private String property = "marking";
 
-    @Override
-    public Marking setMarking(Object subject, Marking marking, Map<String, Boolean> context) {
-        return null;
-    }
-
-    @Override
-    public Marking setMarking(Object subject, Marking marking, String[] context) {
-        return null;
-    }
-
-    @Override
-    public Marking setMarking(Object subject, Marking marking) {
-        return null;
-    }
 
     public MethodMarkingStore(boolean singleState, String property) {
         this.singleState = singleState;
@@ -101,5 +87,10 @@ final public class MethodMarkingStore implements MarkingStoreInterface {
                 ClassNotFoundException | IllegalAccessException ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public void setMarking(Object subject, Marking marking) throws LogicException {
+        setMarking(subject, marking, null);
     }
 }

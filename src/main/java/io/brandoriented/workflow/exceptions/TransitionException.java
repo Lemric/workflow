@@ -16,6 +16,7 @@ public class TransitionException extends LogicException {
                                WorkflowInterface workflow,
                                String message,
                                Map<String, Boolean> context) {
+
         this.subject = subject;
         this.transitionName = transitionName;
         this.workflow = workflow;
