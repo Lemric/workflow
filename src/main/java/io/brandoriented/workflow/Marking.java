@@ -7,9 +7,11 @@ public class Marking {
     private Map<String, Integer> places;
 
     public Marking() {
+        this.places = new HashMap<>();
     }
 
     public Marking(HashMap<String, Integer> representation) {
+        this.places = new HashMap<>();
         representation.forEach((place, nbToken) -> this.mark(place));
     }
 
