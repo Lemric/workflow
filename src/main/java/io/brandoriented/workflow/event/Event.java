@@ -6,7 +6,7 @@ import io.brandoriented.workflow.WorkflowInterface;
 
 import java.util.Map;
 
-public class Event {
+public abstract class Event {
     private final Object subject;
     private final Marking marking;
     private final Transition transition;

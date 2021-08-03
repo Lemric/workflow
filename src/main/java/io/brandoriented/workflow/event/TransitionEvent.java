@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class TransitionEvent extends Event {
 
-    private Map<String, Boolean> context;
+    private Map<String, Boolean> context = null;
 
     public TransitionEvent(Object subject, Marking marking, Transition transition, WorkflowInterface workflow, Map<String, Boolean> context) {
         super(subject, marking, transition, workflow, context);
@@ -20,5 +20,10 @@ public class TransitionEvent extends Event {
 
     public void setContext(Map<String, Boolean> context) {
         this.context = context;
+    }
+
+    @Override
+    public Map<String, Boolean> getContext() {
+        return context;
     }
 }
