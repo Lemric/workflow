@@ -15,7 +15,7 @@ public class DefinitionBuilder {
         this.transitions = transitions;
     }
 
-    public Definition build() {
+    public Definition build() throws Throwable {
         return new Definition(this.places, this.transitions, this.initialPlaces, this.metadataStore);
     }
 

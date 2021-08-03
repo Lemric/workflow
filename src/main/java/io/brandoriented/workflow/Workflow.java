@@ -260,15 +260,15 @@ public class Workflow implements WorkflowInterface {
     }
 
     private void leave(Object subject, Transition transition, Marking marking, Map<String, Boolean> context) {
-        String[] places = transition.getFroms();
+        ArrayList<PlaceInterface> places = transition.getFroms();
 
         if (this.shouldDispatchEvent(WorkflowEvents.LEAVE, context)) {
             Event event = new LeaveEvent(subject, marking, transition, this, context);
 
             this.dispatcher.post(event);
         }
-        for (String place : places) {
-            marking.unmark(place);
+        for (PlaceInterface place : places) {
+            marking.unmark(place.getName());
         }
     }
 
@@ -285,15 +285,15 @@ public class Workflow implements WorkflowInterface {
     }
 
     private void enter(Object subject, Transition transition, Marking marking, Map<String, Boolean> context) {
-        String[] places = transition.getTos();
+        ArrayList<PlaceInterface> places = transition.getTos();
 
         if (this.shouldDispatchEvent(WorkflowEvents.ENTER, context)) {
             Event event = new EnterEvent(subject, marking, transition, this, context);
 
             this.dispatcher.post(event);
         }
-        for (String place : places) {
-            marking.unmark(place);
+        for (PlaceInterface place : places) {
+            marking.unmark(place.getName());
         }
     }
 
@@ -329,8 +329,8 @@ public class Workflow implements WorkflowInterface {
     public TransitionBlockerList buildTransitionBlockerListForTransition(Object subject,
                                                                          Marking marking,
                                                                          Transition transition) {
-        for (String place : transition.getFroms()) {
-            if (!marking.has(place)) {
+        for (PlaceInterface place : transition.getFroms()) {
+            if (!marking.has(place.getName())) {
                 return new TransitionBlockerList(new ArrayList<TransitionBlocker>() {{
                     this.add(TransitionBlocker.createBlockedByMarking(marking));
                 }});

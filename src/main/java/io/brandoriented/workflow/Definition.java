@@ -1,7 +1,8 @@
 package io.brandoriented.workflow;
 
+import io.brandoriented.workflow.exceptions.LogicException;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,16 +15,18 @@ public class Definition {
     public Definition(Map<String, PlaceInterface> places,
                       ArrayList<Transition> transitions,
                       ArrayList<PlaceInterface> initialPlaces,
-                      MetadataStoreInterface metadataStore) {
+                      MetadataStoreInterface metadataStore) throws Throwable {
 
         this.places = new HashMap<String, PlaceInterface>();
         this.initialPlaces = new ArrayList<PlaceInterface>();
         this.transitions = new ArrayList<Transition>();
 
         places.forEach(this::addPlace);
-        transitions.forEach(this::addTransition);
+        for (Transition transition : transitions) {
+            addTransition(transition);
+        }
 
-        this.initialPlaces = initialPlaces;
+        setInitialPlaces(initialPlaces);
         this.metadataStore = metadataStore;
     }
 
@@ -43,24 +46,21 @@ public class Definition {
         this.places.put(planeName, place);
     }
 
-    public void addTransition(Transition transition) {
+    public void addTransition(Transition transition) throws Throwable {
         String name = transition.getName();
-        try {
-            for (String from : transition.getFroms()) {
-                if (!this.places.containsKey(from)) {
-                    throw new Exception(String.format(from, name));
-                }
+        for (PlaceInterface from : transition.getFroms()) {
+            if (!this.places.containsKey(from.getName())) {
+                throw new LogicException(String.format("Place \"%s\" referenced in transition \"%s\" does not exist.", from.getName(), name));
             }
-
-            for (String to : transition.getTos()) {
-                if (!this.places.containsKey(to)) {
-                    throw new Exception(String.format(to, name));
-                }
-            }
-
-            this.transitions.add(transition);
-        } catch (Exception ignored) {
         }
+
+        for (PlaceInterface to : transition.getTos()) {
+            if (!this.places.containsKey(to.getName())) {
+                throw new LogicException(String.format("Place \"%s\" referenced in transition \"%s\" does not exist.", to.getName(), name));
+            }
+        }
+
+        this.transitions.add(transition);
     }
 
     public Map<String, PlaceInterface> getPlaces() {
@@ -75,20 +75,17 @@ public class Definition {
         return initialPlaces;
     }
 
-    public void setInitialPlaces(PlaceInterface[] places) {
-        if (places.length == 0) {
+    public void setInitialPlaces(ArrayList<PlaceInterface> places) throws Throwable {
+        if (places == null || places.size() == 0) {
             return;
         }
 
-        try {
-            for (PlaceInterface place : places) {
-                if (!this.places.containsValue(place)) {
-                    throw new Exception(String.format(place.getName()));
-                }
+        for (PlaceInterface place : places) {
+            if (!this.places.containsValue(place)) {
+                throw new LogicException(String.format("Place \"%s\" cannot be the initial place as it does not exist.", place.getName()));
             }
-            this.initialPlaces.addAll(Arrays.asList(places));
-        } catch (Exception ignored) {
         }
+        this.initialPlaces = places;
     }
 
     public MetadataStoreInterface getMetadataStore() {
