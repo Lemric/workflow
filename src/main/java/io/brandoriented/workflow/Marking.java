@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Marking {
-    private Map<String, Integer> places;
+    private final Map<String, Integer> places;
 
     public Marking() {
         this.places = new HashMap<>();
@@ -29,5 +29,10 @@ public class Marking {
 
     public Map<String, Integer> getPlaces() {
         return this.places;
+    }
+
+    public boolean equals(Object obj) {
+        Marking emp = (Marking) obj;
+        return places.keySet().equals(emp.places.keySet());
     }
 }

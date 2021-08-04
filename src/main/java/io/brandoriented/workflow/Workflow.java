@@ -5,6 +5,7 @@ import io.brandoriented.workflow.event.*;
 import io.brandoriented.workflow.exceptions.NotEnabledTransitionException;
 import io.brandoriented.workflow.exceptions.UndefinedTransitionException;
 import io.brandoriented.workflow.markingstore.MarkingStoreInterface;
+import io.brandoriented.workflow.metadata.MetadataStoreInterface;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,7 +68,7 @@ public class Workflow implements WorkflowInterface {
             });
             this.markingStore.setMarking(subject, marking);
 
-            if (context.isEmpty()) {
+            if (context == null || context.isEmpty()) {
                 context = DEFAULT_INITIAL_CONTEXT;
             }
 

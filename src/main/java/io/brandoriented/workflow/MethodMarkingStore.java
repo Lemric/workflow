@@ -28,9 +28,10 @@ final public class MethodMarkingStore implements MarkingStoreInterface {
 
     @Override
     public Marking getMarking(Object subject) throws LogicException {
-        String method = "get" + StringUtils.ucfirst(this.property);
+        Method method = null;
+        String methodName = "get" + StringUtils.ucfirst(this.property);
         try {
-            subject.getClass().getDeclaredMethod(method);
+            method = subject.getClass().getDeclaredMethod(methodName);
         } catch (NoSuchMethodException e) {
             String message = String.format(subject.getClass().getName(), method);
             throw new LogicException(message);
@@ -38,13 +39,11 @@ final public class MethodMarkingStore implements MarkingStoreInterface {
         String marking = null;
 
         try {
-            Class classRef = Class.forName(subject.getClass().getName());
-            Method caller = classRef.getDeclaredMethod(method);
-            marking = (String) caller.invoke(subject);
+            marking = (String) method.invoke(subject);
 
-        } catch (NoSuchMethodException | SecurityException |
+        } catch (SecurityException |
                 IllegalArgumentException | InvocationTargetException |
-                ClassNotFoundException | IllegalAccessException ex) {
+                IllegalAccessException ex) {
             ex.printStackTrace();
         }
 
@@ -69,22 +68,19 @@ final public class MethodMarkingStore implements MarkingStoreInterface {
         if (this.singleState) {
             String mark = markingTmp.keySet().stream().findFirst().get();
         }
-
-        String method = "set" + StringUtils.ucfirst(this.property);
+        Method method = null;
+        String methodName = "set" + StringUtils.ucfirst(this.property);
         try {
-            subject.getClass().getDeclaredMethod(method);
+            method = subject.getClass().getDeclaredMethod(methodName, Marking.class, Map.class);
         } catch (NoSuchMethodException e) {
-            String message = String.format(subject.getClass().getName(), method);
-            throw new LogicException(message);
+            String message = String.format("The method \"%s::%s()\" does not exist.", subject.getClass().getName(), method);
+            throw new LogicException(e.getMessage());
         }
         try {
-            Class classRef = Class.forName(subject.getClass().getName());
-            Method caller = classRef.getDeclaredMethod(method);
-            caller.invoke(subject, context);
-
-        } catch (NoSuchMethodException | SecurityException |
+            method.invoke(subject, marking, context);
+        } catch (SecurityException |
                 IllegalArgumentException | InvocationTargetException |
-                ClassNotFoundException | IllegalAccessException ex) {
+                IllegalAccessException ex) {
             ex.printStackTrace();
         }
     }
