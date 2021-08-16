@@ -28,9 +28,10 @@ final public class MethodMarkingStore implements MarkingStoreInterface {
 
     @Override
     public Marking getMarking(Object subject) throws LogicException {
-        String method = "get" + StringUtils.ucfirst(this.property);
+        Method method = null;
+        String methodName = "get" + StringUtils.ucfirst(this.property);
         try {
-            subject.getClass().getDeclaredMethod(method);
+            method = subject.getClass().getDeclaredMethod(methodName);
         } catch (NoSuchMethodException e) {
             String message = String.format(subject.getClass().getName(), method);
             throw new LogicException(message);
@@ -38,13 +39,11 @@ final public class MethodMarkingStore implements MarkingStoreInterface {
         Marking marking;
 
         try {
-            Class classRef = Class.forName(subject.getClass().getName());
-            Method caller = classRef.getDeclaredMethod(method);
-            marking = (Marking) caller.invoke(subject);
+            marking = (Marking) method.invoke(subject);
 
-        } catch (NoSuchMethodException | SecurityException |
+        } catch (SecurityException |
                 IllegalArgumentException | InvocationTargetException |
-                ClassNotFoundException | IllegalAccessException ex) {
+                IllegalAccessException ex) {
             throw new LogicException(ex.getMessage());
         }
 

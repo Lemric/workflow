@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Marking {
-    private Map<String, Integer> places = new HashMap<>();
+    private final Map<String, Integer> places = new HashMap<>();
 
     public Marking() {
     }

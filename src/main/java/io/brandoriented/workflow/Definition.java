@@ -10,8 +10,8 @@ import java.util.Map;
 public class Definition {
     private ArrayList<PlaceInterface> initialPlaces = null;
     private MetadataStoreInterface metadataStore = null;
-    private Map<String, PlaceInterface> places = null;
-    private ArrayList<Transition> transitions = null;
+    private Map<String, PlaceInterface> places = new HashMap<String, PlaceInterface>();
+    private ArrayList<Transition> transitions = new ArrayList<Transition>();
 
     public Definition(Map<String, PlaceInterface> places,
                       ArrayList<Transition> transitions,

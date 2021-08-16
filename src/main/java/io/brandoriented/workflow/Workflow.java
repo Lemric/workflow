@@ -6,8 +6,8 @@ import io.brandoriented.workflow.exceptions.LogicException;
 import io.brandoriented.workflow.exceptions.NotEnabledTransitionException;
 import io.brandoriented.workflow.exceptions.UndefinedTransitionException;
 import io.brandoriented.workflow.markingstore.MarkingStoreInterface;
-import io.brandoriented.workflow.markingstore.MethodMarkingStore;
 import io.brandoriented.workflow.metadata.MetadataStoreInterface;
+import io.brandoriented.workflow.markingstore.MethodMarkingStore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
