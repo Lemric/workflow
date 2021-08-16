@@ -12,6 +12,11 @@ final public class Subject {
         context = new HashMap<String, Boolean>();
     }
 
+    public Subject() {
+        this.marking = null;
+        context = new HashMap<String, Boolean>();
+    }
+
     public Marking getMarking() {
         return marking;
     }
