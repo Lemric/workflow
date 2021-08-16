@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Objects;
 
 public class TransitionBlockerList implements Iterable {
-    private ArrayList<TransitionBlocker> blockers;
+    private ArrayList<TransitionBlocker> blockers = new ArrayList<>();
 
     public TransitionBlockerList() {
     }

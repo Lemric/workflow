@@ -1,6 +1,7 @@
 package io.brandoriented.workflow;
 
 import io.brandoriented.workflow.exceptions.LogicException;
+import io.brandoriented.workflow.metadata.MetadataStoreInterface;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +37,11 @@ public class Definition {
         this.transitions = new ArrayList<Transition>();
 
         places.forEach(this::addPlace);
+    }
+
+    public Definition(Map<String, PlaceInterface> places, ArrayList<Transition> transitions) {
+        this.places = places;
+        this.transitions = transitions;
     }
 
     public void addPlace(String planeName, PlaceInterface place) {

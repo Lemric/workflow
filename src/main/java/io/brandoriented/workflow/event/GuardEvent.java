@@ -5,7 +5,7 @@ import io.brandoriented.workflow.*;
 import java.util.Map;
 
 public class GuardEvent extends Event {
-    private TransitionBlockerList transitionBlockerList;
+    private TransitionBlockerList transitionBlockerList = new TransitionBlockerList();
 
     public GuardEvent(Object subject, Marking marking, Transition transition, WorkflowInterface workflow, Map<String, Boolean> context) {
         super(subject, marking, transition, workflow, context);

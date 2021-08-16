@@ -6,9 +6,9 @@ import io.brandoriented.workflow.WorkflowInterface;
 
 import java.util.Map;
 
-public abstract class Event {
+public abstract class Event extends com.labudzinski.EventDispatcher.Event {
     private final Object subject;
-    private final Marking marking;
+    private Marking marking = null;
     private final Transition transition;
     private final WorkflowInterface workflow;
     protected Map<String, Boolean> context;

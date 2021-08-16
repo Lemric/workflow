@@ -1,10 +1,13 @@
 package io.brandoriented.workflow;
 
-import com.google.common.eventbus.EventBus;
+import com.labudzinski.EventDispatcher.EventDispatcher;
 import io.brandoriented.workflow.event.*;
+import io.brandoriented.workflow.exceptions.LogicException;
 import io.brandoriented.workflow.exceptions.NotEnabledTransitionException;
 import io.brandoriented.workflow.exceptions.UndefinedTransitionException;
 import io.brandoriented.workflow.markingstore.MarkingStoreInterface;
+import io.brandoriented.workflow.markingstore.MethodMarkingStore;
+import io.brandoriented.workflow.metadata.MetadataStoreInterface;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,11 +36,11 @@ public class Workflow implements WorkflowInterface {
     private String name = "unnamed";
     private Map<String, String> eventsToDispatch = null;
 
-    private EventBus dispatcher = new EventBus();
+    private EventDispatcher dispatcher = new EventDispatcher();
 
     public Workflow(Definition definition,
                     MarkingStoreInterface markingStore,
-                    EventBus dispatcher,
+                    EventDispatcher dispatcher,
                     String name,
                     Map<String, String> eventsToDispatch) {
         this.definition = definition;
@@ -47,52 +50,63 @@ public class Workflow implements WorkflowInterface {
         this.eventsToDispatch = eventsToDispatch;
     }
 
+    public Workflow(Definition definition, MarkingStoreInterface markingStore) {
+
+        this.definition = definition;
+        this.markingStore = markingStore;
+    }
+
+    public Workflow(Definition definition, MarkingStoreInterface markingStore, EventDispatcher dispatcher) {
+
+        this.definition = definition;
+        this.markingStore = markingStore;
+        this.dispatcher = dispatcher;
+    }
+
+    public Workflow(Definition definition, MarkingStoreInterface markingStore, EventDispatcher dispatcher, String name) {
+
+        this.definition = definition;
+        this.markingStore = markingStore;
+        this.dispatcher = dispatcher;
+        this.name = name;
+    }
+
     public Marking getMarking(Object subject) throws Exception {
         return this.getMarking(subject, null);
     }
 
     public Marking getMarking(Object subject, Map<String, Boolean> context) throws Exception {
+
         Marking marking = this.markingStore.getMarking(subject);
-
-        if (marking == null) {
-            throw new Exception(String.format(this.name));
+        if (!(marking instanceof Marking)) {
+            throw new LogicException(String.format("The value returned by the MarkingStore is not an instance of \"%s\" for workflow \"%s\".", Marking.class, this.name));
         }
-
         if (marking.getPlaces().isEmpty()) {
-            if (this.definition.getInitialPlaces().isEmpty()) {
-                throw new Exception(String.format(this.name));
+            if (this.definition.getInitialPlaces() == null || this.definition.getInitialPlaces().isEmpty()) {
+                throw new LogicException(String.format("The Marking is empty and there is no initial place for workflow \"%s\".", this.name));
             }
             this.definition.getInitialPlaces().forEach((PlaceInterface place) -> {
                 marking.mark(place.getName());
             });
             this.markingStore.setMarking(subject, marking);
 
-            if (context.isEmpty()) {
+            if (context == null || context.isEmpty()) {
                 context = DEFAULT_INITIAL_CONTEXT;
             }
 
-            //this.entered(subject, null, marking, context);
+            this.entered(subject, null, marking, context);
         }
         Map<String, PlaceInterface> places = this.definition.getPlaces();
-
-        try {
-            marking.getPlaces().forEach((placeName, nbToken) -> {
-                if (!places.containsKey(placeName)) {
-                    String message = String.format(placeName, this.name);
-                    if (places.isEmpty()) {
-                        message += ("It seems you forgot to add places to the current workflow.");
-                    }
-
-                    try {
-                        throw new Exception(message);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        for (Map.Entry<String, Integer> stringIntegerEntry : marking.getPlaces().entrySet()) {
+            String placeName = stringIntegerEntry.getKey();
+            if (!places.containsKey(placeName) || places.get(placeName) == null) {
+                String message = String.format("Place \"%s\" is not valid for workflow \"%s\".", placeName, this.name);
+                if (places == null) {
+                    message += (" It seems you forgot to add places to the current workflow.");
                 }
 
-            });
-        } catch (Exception exception) {
-            throw exception;
+                throw new LogicException(message);
+            }
         }
 
         return marking;
@@ -116,12 +130,16 @@ public class Workflow implements WorkflowInterface {
         return false;
     }
 
+    public Marking apply(Object subject, String transitionName) throws Exception {
+        return this.apply(subject, transitionName, null);
+    }
+
     public Marking apply(Object subject, String transitionName, Map<String, Boolean> context) throws Exception {
         Marking marking = this.getMarking(subject, context);
 
         boolean transitionExist = false;
-        ArrayList<Transition> approvedTransitions = null;
-        TransitionBlockerList bestTransitionBlockerList = null;
+        ArrayList<Transition> approvedTransitions = new ArrayList<>();
+        TransitionBlockerList bestTransitionBlockerList = new TransitionBlockerList();
 
         for (Transition transition : this.definition.getTransitions()) {
             if (!transition.getName().equals(transitionName)) {
@@ -153,7 +171,7 @@ public class Workflow implements WorkflowInterface {
             throw new UndefinedTransitionException(subject, transitionName, this, context);
         }
 
-        if (!approvedTransitions.isEmpty()) {
+        if (approvedTransitions.isEmpty()) {
             throw new NotEnabledTransitionException(subject, transitionName, this, bestTransitionBlockerList, context);
         }
 
@@ -254,7 +272,7 @@ public class Workflow implements WorkflowInterface {
 
         GuardEvent event = new GuardEvent(subject, marking, transition, this);
 
-        this.dispatcher.post(event);
+        this.dispatcher.dispatch(event, WorkflowEvents.GUARD);
 
         return event;
     }
@@ -263,9 +281,9 @@ public class Workflow implements WorkflowInterface {
         ArrayList<PlaceInterface> places = transition.getFroms();
 
         if (this.shouldDispatchEvent(WorkflowEvents.LEAVE, context)) {
-            Event event = new LeaveEvent(subject, marking, transition, this, context);
+            LeaveEvent event = new LeaveEvent(subject, marking, transition, this, context);
 
-            this.dispatcher.post(event);
+            this.dispatcher.dispatch(event, WorkflowEvents.LEAVE);
         }
         for (PlaceInterface place : places) {
             marking.unmark(place.getName());
@@ -279,7 +297,7 @@ public class Workflow implements WorkflowInterface {
 
         Event event = new TransitionEvent(subject, marking, transition, this, context);
 
-        this.dispatcher.post(event);
+        this.dispatcher.dispatch(event, WorkflowEvents.TRANSITION);
 
         return event.getContext();
     }
@@ -290,7 +308,7 @@ public class Workflow implements WorkflowInterface {
         if (this.shouldDispatchEvent(WorkflowEvents.ENTER, context)) {
             Event event = new EnterEvent(subject, marking, transition, this, context);
 
-            this.dispatcher.post(event);
+            this.dispatcher.dispatch(event, WorkflowEvents.ENTER);
         }
         for (PlaceInterface place : places) {
             marking.unmark(place.getName());
@@ -303,7 +321,7 @@ public class Workflow implements WorkflowInterface {
         }
 
         Event event = new EnteredEvent(subject, marking, transition, this, context);
-        this.dispatcher.post(event);
+        this.dispatcher.dispatch(event, WorkflowEvents.ENTERED);
     }
 
     private void completed(Object subject, Transition transition, Marking marking, Map<String, Boolean> context) {
@@ -313,7 +331,7 @@ public class Workflow implements WorkflowInterface {
 
         Event event = new CompletedEvent(subject, marking, transition, this, context);
 
-        this.dispatcher.post(event);
+        this.dispatcher.dispatch(event, WorkflowEvents.COMPLETED);
     }
 
     private void announce(Object subject, Transition transition, Marking marking, Map<String, Boolean> context) {
@@ -323,7 +341,7 @@ public class Workflow implements WorkflowInterface {
 
         Event event = new AnnounceEvent(subject, marking, transition, this, context);
 
-        this.dispatcher.post(event);
+        this.dispatcher.dispatch(event, WorkflowEvents.ANNOUNCE);
     }
 
     public TransitionBlockerList buildTransitionBlockerListForTransition(Object subject,
@@ -355,7 +373,10 @@ public class Workflow implements WorkflowInterface {
         if (null == this.dispatcher) {
             return false;
         }
-        if (context.containsKey(DISABLE_EVENTS_MAPPING.containsKey(eventName))) {
+        if (context == null) {
+            return false;
+        }
+        if (context.containsKey(DISABLE_EVENTS_MAPPING.get(eventName))) {
             return false;
         }
 

@@ -1,5 +1,7 @@
 package io.brandoriented.workflow;
 
+import io.brandoriented.workflow.metadata.MetadataStoreInterface;
+
 import java.util.ArrayList;
 import java.util.Map;
 

@@ -31,7 +31,7 @@ class DefinitionTest {
         for (char c = 'a'; c <= 'e'; c++) {
             places.put(String.valueOf(c), new Place(String.valueOf(c)));
         }
-        Definition definition = new Definition(places, new ArrayList<>(), new ArrayList<PlaceInterface>() {{
+        Definition definition = new Definition(places, new ArrayList<>(), new ArrayList<>() {{
             add(places.get("c"));
         }}, null);
 
@@ -45,7 +45,7 @@ class DefinitionTest {
             places.put(String.valueOf(c), new Place(String.valueOf(c)));
         }
 
-        Definition definition = new Definition(places, new ArrayList<>(), new ArrayList<PlaceInterface>() {{
+        Definition definition = new Definition(places, new ArrayList<>(), new ArrayList<>() {{
             add(places.get("c"));
             add(places.get("d"));
         }}, null);
@@ -61,12 +61,12 @@ class DefinitionTest {
             places.put(String.valueOf(c), new Place(String.valueOf(c)));
         }
 
-        Transition transition = new Transition("name", new ArrayList<PlaceInterface>() {{
+        Transition transition = new Transition("name", new ArrayList<>() {{
             add(places.get("a"));
-        }}, new ArrayList<PlaceInterface>() {{
+        }}, new ArrayList<>() {{
             add(places.get("b"));
         }});
-        Definition definition = new Definition(places, new ArrayList<Transition>() {{
+        Definition definition = new Definition(places, new ArrayList<>() {{
             add(transition);
         }}, null, null);
 
@@ -77,7 +77,7 @@ class DefinitionTest {
     @Test
     public void testSetInitialPlaceAndPlaceIsNotDefined() {
         LogicException exception = Assertions.assertThrows(LogicException.class, () -> {
-            new Definition(new HashMap<>(), new ArrayList<>(), new ArrayList<PlaceInterface>() {{
+            new Definition(new HashMap<>(), new ArrayList<>(), new ArrayList<>() {{
                 add(new Place("d"));
             }}, null);
         });
@@ -92,10 +92,10 @@ class DefinitionTest {
                 places.put(String.valueOf(c), new Place(String.valueOf(c)));
             }
 
-            new Definition(places, new ArrayList<Transition>() {{
-                add(new Transition("name", new ArrayList<PlaceInterface>() {{
+            new Definition(places, new ArrayList<>() {{
+                add(new Transition("name", new ArrayList<>() {{
                     add(new Place("c"));
-                }}, new ArrayList<PlaceInterface>() {{
+                }}, new ArrayList<>() {{
                     add(places.get("b"));
                 }}));
             }}, null, null);
@@ -113,10 +113,10 @@ class DefinitionTest {
                 places.put(String.valueOf(c), new Place(String.valueOf(c)));
             }
 
-            new Definition(places, new ArrayList<Transition>() {{
-                add(new Transition("name", new ArrayList<PlaceInterface>() {{
+            new Definition(places, new ArrayList<>() {{
+                add(new Transition("name", new ArrayList<>() {{
                     add(places.get("b"));
-                }}, new ArrayList<PlaceInterface>() {{
+                }}, new ArrayList<>() {{
                     add(new Place("c"));
                 }}));
             }}, null, null);

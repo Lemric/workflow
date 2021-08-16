@@ -1,18 +1,20 @@
 package io.brandoriented.workflow;
 
+import com.labudzinski.EventDispatcher.util.HashCode;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Marking {
-    private Map<String, Integer> places;
+    private Map<String, Integer> places = new HashMap<>();
 
     public Marking() {
-        this.places = new HashMap<>();
     }
 
     public Marking(HashMap<String, Integer> representation) {
-        this.places = new HashMap<>();
-        representation.forEach((place, nbToken) -> this.mark(place));
+        if (representation != null) {
+            representation.forEach((place, nbToken) -> this.mark(place));
+        }
     }
 
     public void mark(String place) {
@@ -29,5 +31,29 @@ public class Marking {
 
     public Map<String, Integer> getPlaces() {
         return this.places;
+    }
+
+    public String getSingle() {
+        for (Map.Entry<String, Integer> stringIntegerEntry : this.places.entrySet()) {
+            return stringIntegerEntry.getKey();
+        }
+
+        return null;
+    }
+
+    @Override
+    public int hashCode() {
+        HashCode h = new HashCode();
+        h.addValue(this.getPlaces());
+        return h.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Marking that = (Marking) o;
+
+        return that.hashCode() == hashCode();
     }
 }
