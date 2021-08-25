@@ -1,5 +1,9 @@
 ---
-name: 🐛 Bug Report about: ⚠️ See below for security reports labels: Bug
+name: Bug report
+about: 'See below for security reports labels: Bug'
+title: ''
+labels: ''
+assignees: ''
 
 ---
 
