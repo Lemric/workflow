@@ -12,6 +12,7 @@ import com.labudzinski.workflow.metadata.MetadataStoreInterface;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Workflow implements WorkflowInterface {
     public static String DISABLE_LEAVE_EVENT = "workflow_disable_leave_event";
@@ -246,7 +247,7 @@ public class Workflow implements WorkflowInterface {
         Marking marking = this.getMarking(subject);
         TransitionBlockerList transitionBlockerList = null;
         for (Transition transition : transitions) {
-            if (transition.getName() != transitionName) {
+            if (!Objects.equals(transition.getName(), transitionName)) {
                 continue;
             }
 
@@ -383,7 +384,7 @@ public class Workflow implements WorkflowInterface {
 
         GuardEvent event = this.guardTransition(subject, marking, transition);
 
-        if (event.isBlocked()) {
+        if (event != null && event.isBlocked()) {
             return event.getTransitionBlockerList();
         }
 
