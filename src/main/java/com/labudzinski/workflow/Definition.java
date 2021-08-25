@@ -10,38 +10,37 @@ import java.util.Map;
 public class Definition {
     private ArrayList<PlaceInterface> initialPlaces = null;
     private MetadataStoreInterface metadataStore = null;
-    private Map<String, PlaceInterface> places = new HashMap<String, PlaceInterface>();
-    private ArrayList<Transition> transitions = new ArrayList<Transition>();
+    private final Map<String, PlaceInterface> places = new HashMap<>();
+    private final ArrayList<Transition> transitions = new ArrayList<>();
+
+    public Definition(Map<String, PlaceInterface> places) throws Throwable {
+        this(places, null, null, null);
+    }
+
+    public Definition(Map<String, PlaceInterface> places, ArrayList<Transition> transitions) throws Throwable {
+        this(places, transitions, null, null);
+    }
 
     public Definition(Map<String, PlaceInterface> places,
                       ArrayList<Transition> transitions,
                       ArrayList<PlaceInterface> initialPlaces,
                       MetadataStoreInterface metadataStore) throws Throwable {
 
-        this.places = new HashMap<String, PlaceInterface>();
-        this.initialPlaces = new ArrayList<PlaceInterface>();
-        this.transitions = new ArrayList<Transition>();
+        this.initialPlaces = new ArrayList<>();
 
-        places.forEach(this::addPlace);
-        for (Transition transition : transitions) {
-            addTransition(transition);
+        if (places != null) {
+            places.forEach(this::addPlace);
+        }
+        if (transitions != null) {
+            for (Transition transition : transitions) {
+                addTransition(transition);
+            }
         }
 
-        setInitialPlaces(initialPlaces);
+        if (initialPlaces != null) {
+            setInitialPlaces(initialPlaces);
+        }
         this.metadataStore = metadataStore;
-    }
-
-    public Definition(Map<String, PlaceInterface> places) {
-        this.places = new HashMap<String, PlaceInterface>();
-        this.initialPlaces = new ArrayList<PlaceInterface>();
-        this.transitions = new ArrayList<Transition>();
-
-        places.forEach(this::addPlace);
-    }
-
-    public Definition(Map<String, PlaceInterface> places, ArrayList<Transition> transitions) {
-        this.places = places;
-        this.transitions = transitions;
     }
 
     public void addPlace(String planeName, PlaceInterface place) {

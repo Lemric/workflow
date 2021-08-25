@@ -4,6 +4,7 @@ import com.labudzinski.eventdispatcher.EventDispatcher;
 import com.labudzinski.eventdispatchercontracts.EventListenerInterface;
 import com.labudzinski.workflow.event.GuardEvent;
 import com.labudzinski.workflow.exceptions.LogicException;
+import com.labudzinski.workflow.exceptions.UndefinedTransitionException;
 import com.labudzinski.workflow.markingstore.MarkingStoreInterface;
 import com.labudzinski.workflow.markingstore.MethodMarkingStore;
 import org.junit.jupiter.api.Assertions;
@@ -180,5 +181,37 @@ class WorkflowTest extends WorkflowBuilderTrait {
         assertThat(dispatchedEvents).isEqualTo(new ArrayList<String>() {{
             add("workflow_name.guard.t3");
         }});
+    }
+
+    @Test
+    public void testCanWithSameNameTransition() throws Throwable {
+        Definition definition = this.createWorkflowWithSameNameTransition();
+        Workflow workflow = new Workflow(definition, new MethodMarkingStore());
+
+        Subject subject = new Subject();
+        assertTrue(workflow.can(subject, "a_to_bc"));
+        assertFalse(workflow.can(subject, "b_to_c"));
+        assertFalse(workflow.can(subject, "to_a"));
+
+        subject.setMarking(new Marking(new HashMap<>() {{
+            put("b", 1);
+        }}));
+        assertFalse(workflow.can(subject, "a_to_bc"));
+        assertTrue(workflow.can(subject, "b_to_c"));
+        assertTrue(workflow.can(subject, "to_a"));
+    }
+
+    @Test
+    public void testBuildTransitionBlockerListReturnsUndefinedTransition() throws Throwable {
+
+        UndefinedTransitionException exception = Assertions.assertThrows(UndefinedTransitionException.class, () -> {
+            Definition definition = this.createSimpleWorkflowDefinition();
+            Subject subject = new Subject();
+            Workflow workflow = new Workflow(definition, new MethodMarkingStore());
+
+            workflow.buildTransitionBlockerList(subject, "404 Not Found");
+        });
+
+        assertEquals(exception.getMessage(), "Transition \"404 Not Found\" is not defined for workflow \"unnamed\".");
     }
 }

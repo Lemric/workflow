@@ -260,11 +260,13 @@ public class Workflow implements WorkflowInterface {
             if (!transitionBlockerList.has(TransitionBlocker.BLOCKED_BY_MARKING)) {
                 return transitionBlockerList;
             }
-
-            if (!transitionBlockerList.isEmpty()) {
-                throw new Exception();
-            }
         }
+
+
+        if (transitionBlockerList == null) {
+            throw new UndefinedTransitionException(subject, transitionName, this);
+        }
+
         return transitionBlockerList;
     }
 

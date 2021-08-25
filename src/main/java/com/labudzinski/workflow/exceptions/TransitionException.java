@@ -8,7 +8,6 @@ public class TransitionException extends LogicException {
     private final Object subject;
     private final String transitionName;
     private final WorkflowInterface workflow;
-    private final String message;
     private final Map<String, Boolean> context;
 
     public TransitionException(Object subject,
@@ -17,10 +16,10 @@ public class TransitionException extends LogicException {
                                String message,
                                Map<String, Boolean> context) {
 
+        super(message);
         this.subject = subject;
         this.transitionName = transitionName;
         this.workflow = workflow;
-        this.message = message;
         this.context = context;
     }
 
@@ -34,11 +33,6 @@ public class TransitionException extends LogicException {
 
     public WorkflowInterface getWorkflow() {
         return workflow;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
     }
 
     public Map<String, Boolean> getContext() {

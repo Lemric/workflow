@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DefinitionTest {
 
     @Test
-    public void testAddPlaces() {
+    public void testAddPlaces() throws Throwable {
         Map<String, PlaceInterface> places = new HashMap<>();
         for (char c = 'a'; c <= 'e'; c++) {
             places.put(String.valueOf(c), new Place(String.valueOf(c)));
@@ -92,10 +92,10 @@ class DefinitionTest {
                 places.put(String.valueOf(c), new Place(String.valueOf(c)));
             }
 
-            new Definition(places, new ArrayList<Transition>() {{
-                add(new Transition("name", new ArrayList<PlaceInterface>() {{
+            new Definition(places, new ArrayList<>() {{
+                add(new Transition("name", new ArrayList<>() {{
                     add(new Place("c"));
-                }}, new ArrayList<PlaceInterface>() {{
+                }}, new ArrayList<>() {{
                     add(places.get("b"));
                 }}));
             }}, null, null);

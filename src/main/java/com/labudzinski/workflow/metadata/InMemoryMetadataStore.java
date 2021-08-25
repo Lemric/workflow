@@ -9,11 +9,11 @@ import java.util.HashMap;
 public class InMemoryMetadataStore implements MetadataStoreInterface {
 
     private final ArrayList workflowMetadata;
-    private final ArrayList placesMetadata;
+    private final HashMap<PlaceInterface, HashMap<String, String>> placesMetadata;
     private final HashMap<Transition, HashMap<String, String>> transitionsMetadata;
 
     public InMemoryMetadataStore(ArrayList workflowMetadata,
-                                 ArrayList placesMetadata,
+                                 HashMap<PlaceInterface, HashMap<String, String>> placesMetadata,
                                  HashMap<Transition, HashMap<String, String>> transitionsMetadata) {
         this.workflowMetadata = workflowMetadata;
         this.placesMetadata = placesMetadata;
@@ -27,7 +27,7 @@ public class InMemoryMetadataStore implements MetadataStoreInterface {
 
     @Override
     public Object getPlaceMetadata(PlaceInterface place) {
-        return this.placesMetadata.get(this.placesMetadata.indexOf(place));
+        return this.placesMetadata.get(place);
     }
 
     @Override
