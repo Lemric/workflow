@@ -21,12 +21,13 @@ public class Workflow implements WorkflowInterface {
     public static String DISABLE_ENTERED_EVENT = "workflow_disable_entered_event";
     public static String DISABLE_COMPLETED_EVENT = "workflow_disable_completed_event";
     public static String DISABLE_ANNOUNCE_EVENT = "workflow_disable_announce_event";
-    public static Map<String, Boolean> DEFAULT_INITIAL_CONTEXT = new HashMap<String, Boolean>() {{
+    public static Map<String, Boolean> DEFAULT_INITIAL_CONTEXT = new HashMap<>() {{
         put("initial", true);
     }};
-    public static Map<String, String> DISABLE_EVENTS_MAPPING = new HashMap<String, String>() {{
+    public static Map<String, String> DISABLE_EVENTS_MAPPING = new HashMap<>() {{
         put(WorkflowEvents.LEAVE, DISABLE_LEAVE_EVENT);
         put(WorkflowEvents.ENTER, DISABLE_ENTER_EVENT);
+        put(WorkflowEvents.TRANSITION, DISABLE_TRANSITION_EVENT);
         put(WorkflowEvents.ENTERED, DISABLE_ENTERED_EVENT);
         put(WorkflowEvents.COMPLETED, DISABLE_COMPLETED_EVENT);
         put(WorkflowEvents.ANNOUNCE, DISABLE_ANNOUNCE_EVENT);
@@ -139,7 +140,7 @@ public class Workflow implements WorkflowInterface {
         Marking marking = this.getMarking(subject, context);
 
         boolean transitionExist = false;
-        ArrayList<Transition> approvedTransitions = new ArrayList<Transition>();
+        ArrayList<Transition> approvedTransitions = new ArrayList<>();
         TransitionBlockerList bestTransitionBlockerList = new TransitionBlockerList();
 
         for (Transition transition : this.definition.getTransitions()) {
@@ -193,7 +194,7 @@ public class Workflow implements WorkflowInterface {
     }
 
     public ArrayList<Transition> getEnabledTransitions(Object subject) throws Exception {
-        ArrayList<Transition> enabledTransitions = new ArrayList<Transition>();
+        ArrayList<Transition> enabledTransitions = new ArrayList<>();
         Marking marking = this.getMarking(subject);
 
         for (Transition transition : this.definition.getTransitions()) {
