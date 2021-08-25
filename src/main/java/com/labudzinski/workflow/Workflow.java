@@ -78,7 +78,7 @@ public class Workflow implements WorkflowInterface {
     public Marking getMarking(Object subject, Map<String, Boolean> context) throws Exception {
 
         Marking marking = this.markingStore.getMarking(subject);
-        if (!(marking instanceof Marking)) {
+        if (marking == null) {
             throw new LogicException(String.format("The value returned by the MarkingStore is not an instance of \"%s\" for workflow \"%s\".", Marking.class, this.name));
         }
         if (marking.getPlaces().isEmpty()) {
@@ -275,7 +275,6 @@ public class Workflow implements WorkflowInterface {
         this.dispatcher.dispatch(event, WorkflowEvents.GUARD);
         this.dispatcher.dispatch(event, String.format("workflow.%s.guard", this.name));
         this.dispatcher.dispatch(event, String.format("workflow.%s.guard.%s", this.name, transition.getName()));
-        System.out.println(event.isBlocked());
         return event;
     }
 

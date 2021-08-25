@@ -145,15 +145,13 @@ class WorkflowTest extends WorkflowBuilderTrait {
         Definition definition = this.createComplexWorkflowDefinition();
         Subject subject = new Subject();
         EventDispatcher eventDispatcher = new EventDispatcher();
-        eventDispatcher.addListener("workflow.workflow_name.guard.t1", (EventListenerInterface<GuardEvent>) (GuardEvent event) -> {
+        EventListenerInterface<GuardEvent> callback = (GuardEvent event) -> {
             event.setBlocked(true, null);
-            System.out.println("OK");
-            System.out.println("event.isBlocked(): " + event.isBlocked());
             return event;
-        });
+        };
+        eventDispatcher.addListener("workflow.workflow_name.guard.t1", callback);
 
         Workflow workflow = new Workflow(definition, new MethodMarkingStore(), eventDispatcher, "workflow_name");
-
         assertFalse(workflow.can(subject, "t1"));
     }
 
@@ -163,14 +161,16 @@ class WorkflowTest extends WorkflowBuilderTrait {
         Subject subject = new Subject();
         ArrayList<String> dispatchedEvents = new ArrayList<>();
         EventDispatcher eventDispatcher = new EventDispatcher();
-        eventDispatcher.addListener("workflow.workflow_name.guard.t3", (event) -> {
+        EventListenerInterface<GuardEvent> callback = (GuardEvent event) -> {
             dispatchedEvents.add("workflow_name.guard.t3");
             return event;
-        });
-        eventDispatcher.addListener("workflow.workflow_name.guard.t4", (event) -> {
+        };
+        EventListenerInterface<GuardEvent> callback2 = (GuardEvent event) -> {
             dispatchedEvents.add("workflow_name.guard.t4");
             return event;
-        });
+        };
+        eventDispatcher.addListener("workflow.workflow_name.guard.t3", callback);
+        eventDispatcher.addListener("workflow.workflow_name.guard.t4", callback2);
 
         Workflow workflow = new Workflow(definition, new MethodMarkingStore(), eventDispatcher, "workflow_name");
         workflow.apply(subject, "t1");
