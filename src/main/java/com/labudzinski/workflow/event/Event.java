@@ -1,3 +1,13 @@
+/*
+ * This file is part of the com.labudzinski package.
+ * Copyright (c) 2021-2021.
+ *
+ * For the full copyright and license information, please view the LICENSE file that was distributed with this source code.
+ *
+ * @author Dominik Labudzinski <dominik@labudzinski.com>
+ *
+ */
+
 package com.labudzinski.workflow.event;
 
 import com.labudzinski.workflow.Marking;
@@ -6,7 +16,7 @@ import com.labudzinski.workflow.WorkflowInterface;
 
 import java.util.Map;
 
-public class Event extends com.labudzinski.eventdispatchercontracts.Event {
+public class Event extends com.labudzinski.eventdispatcher.Event {
     private final Object subject;
     private Marking marking = null;
     private final Transition transition;

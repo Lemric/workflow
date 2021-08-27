@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ This file is part of the com.labudzinski package.
+  ~ Copyright (c) 2021.
+  ~
+  ~ For the full copyright and license information, please view the LICENSE file that was distributed with this source code.
+  ~
+  ~ @author Dominik Labudzinski <dominik@labudzinski.com>
+  ~
+  -->
+
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -33,7 +43,7 @@
         <dependency>
             <groupId>com.labudzinski</groupId>
             <artifactId>eventdispatcher</artifactId>
-            <version>0.0.1-g</version>
+            <version>0.0.2-g</version>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>

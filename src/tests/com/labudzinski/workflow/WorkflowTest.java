@@ -7,10 +7,11 @@
  * @author Dominik Labudzinski <dominik@labudzinski.com>
  *
  */
+
 package com.labudzinski.workflow;
 
 import com.labudzinski.eventdispatcher.EventDispatcher;
-import com.labudzinski.eventdispatchercontracts.EventListenerInterface;
+import com.labudzinski.eventdispatcher.EventListenerInterface;
 import com.labudzinski.workflow.event.GuardEvent;
 import com.labudzinski.workflow.exceptions.LogicException;
 import com.labudzinski.workflow.exceptions.UndefinedTransitionException;
@@ -223,4 +224,127 @@ class WorkflowTest extends WorkflowBuilderTrait {
 
         assertEquals(exception.getMessage(), "Transition \"404 Not Found\" is not defined for workflow \"unnamed\".");
     }
+
+    @Test
+    public void testApply() throws Throwable {
+        Definition definition = this.createComplexWorkflowDefinition();
+        Subject subject = new Subject();
+        Workflow workflow = new Workflow(definition, new MethodMarkingStore());
+
+        Marking marking = workflow.apply(subject, "t1");
+
+        assertInstanceOf(Marking.class, marking);
+        assertFalse(marking.has("a"));
+        assertTrue(marking.has("b"));
+        assertTrue(marking.has("c"));
+    }
+
+    @Test
+    public void testApplyWithSameNameTransition() throws Throwable {
+        Subject subject = new Subject();
+        Definition definition = this.createWorkflowWithSameNameTransition();
+        Workflow workflow = new Workflow(definition, new MethodMarkingStore());
+
+        Marking marking = workflow.apply(subject, "a_to_bc");
+
+        assertFalse(marking.has("a"));
+        assertTrue(marking.has("b"));
+        assertTrue(marking.has("c"));
+
+        marking = workflow.apply(subject, "to_a");
+
+        assertTrue(marking.has("a"));
+        assertFalse(marking.has("b"));
+        assertFalse(marking.has("c"));
+
+        workflow.apply(subject, "a_to_bc");
+        marking = workflow.apply(subject, "b_to_c");
+
+        assertFalse(marking.has("a"));
+        assertFalse(marking.has("b"));
+        assertTrue(marking.has("c"));
+
+        marking = workflow.apply(subject, "to_a");
+
+        assertTrue(marking.has("a"));
+        assertFalse(marking.has("b"));
+        assertFalse(marking.has("c"));
+    }
+
+    @Test
+    public void testApplyWithSameNameTransition2() throws Throwable {
+        Subject subject = new Subject();
+        subject.setMarking(new Marking(new HashMap<>() {{
+            put("a", 1);
+            put("b", 1);
+        }}));
+
+        Map<String, PlaceInterface> places = new HashMap<>();
+        for (char c = 'a'; c <= 'd'; c++) {
+            places.put(String.valueOf(c), new Place(String.valueOf(c)));
+        }
+
+        ArrayList<Transition> transitions = new ArrayList<>() {{
+            add(new Transition("t", new ArrayList<>() {{
+                add(places.get("a"));
+            }}, new ArrayList<>() {{
+                add(places.get("c"));
+            }}));
+            add(new Transition("t", new ArrayList<>() {{
+                add(places.get("b"));
+            }}, new ArrayList<>() {{
+                add(places.get("d"));
+            }}));
+        }};
+
+        Definition definition = new Definition(places, transitions);
+        Workflow workflow = new Workflow(definition, new MethodMarkingStore());
+
+        Marking marking = workflow.apply(subject, "t");
+
+        assertFalse(marking.has("a"));
+        assertFalse(marking.has("b"));
+        assertTrue(marking.has("c"));
+        assertTrue(marking.has("d"));
+    }
+
+    @Test
+    public void testApplyWithSameNameTransition3() throws Throwable {
+        Subject subject = new Subject();
+        subject.setMarking(new Marking(new HashMap<>() {{
+            put("a", 1);
+        }}));
+
+        Map<String, PlaceInterface> places = new HashMap<>();
+        for (char c = 'a'; c <= 'd'; c++) {
+            places.put(String.valueOf(c), new Place(String.valueOf(c)));
+        }
+
+        ArrayList<Transition> transitions = new ArrayList<>() {{
+            add(new Transition("t", new ArrayList<>() {{
+                add(places.get("a"));
+            }}, new ArrayList<>() {{
+                add(places.get("b"));
+            }}));
+            add(new Transition("t", new ArrayList<>() {{
+                add(places.get("b"));
+            }}, new ArrayList<>() {{
+                add(places.get("c"));
+            }}));
+            add(new Transition("t", new ArrayList<>() {{
+                add(places.get("c"));
+            }}, new ArrayList<>() {{
+                add(places.get("d"));
+            }}));
+        }};
+
+        Definition definition = new Definition(places, transitions);
+        Workflow workflow = new Workflow(definition, new MethodMarkingStore());
+
+        Marking marking = workflow.apply(subject, "t");
+        // We want to make sure we do not end up in "d"
+        assertTrue(marking.has("b"));
+        assertFalse(marking.has("d"));
+    }
+
 }

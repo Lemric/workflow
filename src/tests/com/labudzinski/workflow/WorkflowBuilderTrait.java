@@ -1,3 +1,13 @@
+/*
+ * This file is part of the com.labudzinski package.
+ * Copyright (c) 2021-2021.
+ *
+ * For the full copyright and license information, please view the LICENSE file that was distributed with this source code.
+ *
+ * @author Dominik Labudzinski <dominik@labudzinski.com>
+ *
+ */
+
 package com.labudzinski.workflow;
 
 import com.labudzinski.workflow.metadata.InMemoryMetadataStore;
@@ -98,12 +108,12 @@ public class WorkflowBuilderTrait {
             add(new Transition("to_a", new ArrayList<>() {{
                 add(places.get("b"));
             }}, new ArrayList<>() {{
-                add(places.get("c"));
+                add(places.get("a"));
             }}));
             add(new Transition("to_a", new ArrayList<>() {{
                 add(places.get("c"));
             }}, new ArrayList<>() {{
-                add(places.get("c"));
+                add(places.get("a"));
             }}));
         }};
 
