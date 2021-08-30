@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -222,5 +223,109 @@ class WorkflowTest extends WorkflowBuilderTrait {
         });
 
         assertEquals(exception.getMessage(), "Transition \"404 Not Found\" is not defined for workflow \"unnamed\".");
+    }
+
+    @Test
+    public void testBuildTransitionBlockerList() throws Throwable {
+        Definition definition = this.createComplexWorkflowDefinition();
+        Subject subject = new Subject();
+        Workflow workflow = new Workflow(definition, new MethodMarkingStore());
+
+        assertTrue(workflow.buildTransitionBlockerList(subject, "t1").isEmpty());
+        assertFalse(workflow.buildTransitionBlockerList(subject, "t2").isEmpty());
+
+        subject.setMarking(new Marking(new HashMap<>() {{
+            put("b", 1);
+        }}));
+
+        assertFalse(workflow.buildTransitionBlockerList(subject, "t1").isEmpty());
+        assertFalse(workflow.buildTransitionBlockerList(subject, "t2").isEmpty());
+
+        subject.setMarking(new Marking(new HashMap<>() {{
+            put("b", 1);
+            put("c", 1);
+        }}));
+
+        assertFalse(workflow.buildTransitionBlockerList(subject, "t1").isEmpty());
+        assertTrue(workflow.buildTransitionBlockerList(subject, "t2").isEmpty());
+
+        subject.setMarking(new Marking(new HashMap<>() {{
+            put("f", 1);
+        }}));
+
+        assertFalse(workflow.buildTransitionBlockerList(subject, "t5").isEmpty());
+        assertTrue(workflow.buildTransitionBlockerList(subject, "t6").isEmpty());
+    }
+
+    @Test
+    public void testBuildTransitionBlockerListReturnsReasonsProvidedByMarking() throws Throwable {
+        Definition definition = this.createComplexWorkflowDefinition();
+        Subject subject = new Subject();
+        Workflow workflow = new Workflow(definition, new MethodMarkingStore());
+
+        TransitionBlockerList transitionBlockerList = workflow.buildTransitionBlockerList(subject, "t2");
+        assertTrue(transitionBlockerList.count() == 1);
+        TransitionBlocker blockers = transitionBlockerList.iterator().next();
+
+        assertSame("The marking does not enable the transition.", blockers.getMessage());
+        assertSame("19beefc8-6b1e-4716-9d07-a39bd6d16e34", blockers.getCode());
+    }
+
+    @Test
+    public void testBuildTransitionBlockerListReturnsReasonsProvidedInGuards() throws Throwable {
+        Definition definition = this.createSimpleWorkflowDefinition();
+        Object subject = new Subject();
+        EventDispatcher dispatcher = new EventDispatcher();
+        Workflow workflow = new Workflow(definition, new MethodMarkingStore(), dispatcher);
+
+        EventListenerInterface<GuardEvent> listener = (GuardEvent event) -> {
+            event.addTransitionBlocker(new TransitionBlocker("Transition blocker 1", "blocker_1"));
+            event.addTransitionBlocker(new TransitionBlocker("Transition blocker 2", "blocker_2"));
+            return event;
+        };
+        dispatcher.addListener("workflow.guard", listener);
+
+        listener = (GuardEvent event) -> {
+            event.addTransitionBlocker(new TransitionBlocker("Transition blocker 3", "blocker_3"));
+            return event;
+        };
+        dispatcher.addListener("workflow.guard", listener);
+
+        listener = (GuardEvent event) -> {
+            event.setBlocked(true);
+            return event;
+        };
+        dispatcher.addListener("workflow.guard", listener);
+
+        listener = (GuardEvent event) -> {
+            event.setBlocked(true, "You should not pass !!");
+            return event;
+        };
+        dispatcher.addListener("workflow.guard", listener);
+
+        TransitionBlockerList transitionBlockerList = workflow.buildTransitionBlockerList(subject, "t1");
+        Iterator<TransitionBlocker> iterator = transitionBlockerList.iterator();
+
+        assertTrue(transitionBlockerList.count() == 5);
+        Iterator<TransitionBlocker> blockers = iterator;
+        TransitionBlocker blockerO = blockers.next();
+        assertSame("Transition blocker 1", blockerO.getMessage());
+        assertSame("blocker_1", blockerO.getCode());
+
+        TransitionBlocker blocker1 = blockers.next();
+        assertSame("Transition blocker 2", blocker1.getMessage());
+        assertSame("blocker_2", blocker1.getCode());
+
+        TransitionBlocker blocker2 = blockers.next();
+        assertSame("Transition blocker 3", blocker2.getMessage());
+        assertSame("blocker_3", blocker2.getCode());
+
+        TransitionBlocker blocker3 = blockers.next();
+        assertSame("The transition has been blocked by a guard (Symfony\\Component\\Workflow\\Tests\\WorkflowTest).", blocker3.getMessage());
+        assertSame("e8b5bbb9-5913-4b98-bfa6-65dbd228a82a", blocker3.getCode());
+
+        TransitionBlocker blocker4 = blockers.next();
+        assertSame("You should not pass !!", blocker4.getMessage());
+        assertSame("e8b5bbb9-5913-4b98-bfa6-65dbd228a82a", blocker4.getCode());
     }
 }
