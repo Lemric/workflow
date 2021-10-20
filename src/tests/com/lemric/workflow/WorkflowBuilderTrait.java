@@ -121,6 +121,10 @@ public class WorkflowBuilderTrait {
     }
 
     public Definition createSimpleWorkflowDefinition() throws Throwable {
+        return this.createSimpleWorkflowDefinition(null);
+    }
+
+    public Definition createSimpleWorkflowDefinition(String name) throws Throwable {
         Map<String, PlaceInterface> places = new HashMap<>();
         for (char c = 'a'; c <= 'c'; c++) {
             places.put(String.valueOf(c), new Place(String.valueOf(c)));
